@@ -4,6 +4,8 @@ Autonomous chemistry/chemical-engineering research agent. Plans, reasons, and so
 
 **Backend:** [`claude -p`](https://docs.claude.com/en/docs/claude-code/cli-reference) — uses your Claude Code auth. No separate API key required.
 
+**v0.2 benchmark:** 228/230 (99.1%), 22/22 numerical problems correct across 10 ChemE subdomains.
+
 ## Why
 
 Most LLM agents are built by CS engineers against software tasks. This one is built by a chemical engineering student to tackle *domain* problems — unit operations, kinetics, thermodynamics, separations — the kind of work a process engineer or research chemist does. It's positioned at the intersection of AI agent building and chemical engineering, a combination that's scarce in 2026.
