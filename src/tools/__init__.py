@@ -1,0 +1,84 @@
+from .molecular import molecular_weight, molecular_properties, name_to_smiles
+from .thermo import antoine_vapor_pressure, ideal_gas_volume
+from .python_exec import python_exec
+
+TOOL_FUNCTIONS = {
+    "molecular_weight": molecular_weight,
+    "molecular_properties": molecular_properties,
+    "name_to_smiles": name_to_smiles,
+    "antoine_vapor_pressure": antoine_vapor_pressure,
+    "ideal_gas_volume": ideal_gas_volume,
+    "python_exec": python_exec,
+}
+
+TOOL_SCHEMAS = [
+    {
+        "name": "molecular_weight",
+        "description": "Compute molecular weight (g/mol) of a molecule from its SMILES string. Use when a problem mentions a compound and needs its molar mass.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "smiles": {"type": "string", "description": "SMILES string, e.g. 'CCO' for ethanol"},
+            },
+            "required": ["smiles"],
+        },
+    },
+    {
+        "name": "molecular_properties",
+        "description": "Return molecular properties: MW, logP, H-bond donors/acceptors, rotatable bonds, TPSA. Use for compound characterization.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "smiles": {"type": "string"},
+            },
+            "required": ["smiles"],
+        },
+    },
+    {
+        "name": "name_to_smiles",
+        "description": "Look up SMILES from a common chemical name. Supports a curated ChemE-relevant set (ethanol, water, benzene, methanol, aspirin, etc.). Returns error if unknown — fall back to asking the user.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+            },
+            "required": ["name"],
+        },
+    },
+    {
+        "name": "antoine_vapor_pressure",
+        "description": "Compute vapor pressure (kPa) using Antoine equation: log10(P) = A - B/(C+T). Supports water, ethanol, methanol, benzene, toluene, acetone.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "compound": {"type": "string", "description": "Compound name (lowercase)"},
+                "temperature_c": {"type": "number", "description": "Temperature in Celsius"},
+            },
+            "required": ["compound", "temperature_c"],
+        },
+    },
+    {
+        "name": "ideal_gas_volume",
+        "description": "Compute volume (L) of ideal gas: V = nRT/P. n in mol, T in K, P in kPa.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "moles": {"type": "number"},
+                "temperature_k": {"type": "number"},
+                "pressure_kpa": {"type": "number"},
+            },
+            "required": ["moles", "temperature_k", "pressure_kpa"],
+        },
+    },
+    {
+        "name": "python_exec",
+        "description": "Execute Python code for arbitrary numerical calculations (reactor sizing, mass balance, distillation, etc.). Has access to math, numpy. MUST print() the final result. Do not use for file/network I/O.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "Python code. Print final answer with print()."},
+            },
+            "required": ["code"],
+        },
+    },
+]
