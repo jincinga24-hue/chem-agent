@@ -7,6 +7,7 @@ import pytest
 from src.tools.molecular import molecular_weight, molecular_properties, name_to_smiles
 from src.tools.thermo import antoine_vapor_pressure, ideal_gas_volume
 from src.tools.python_exec import python_exec
+from src.tools.literature import arxiv_search
 
 
 class TestMolecular:
@@ -55,6 +56,21 @@ class TestThermo:
         # literature: ~29.5 kPa
         assert 25 < result["vapor_pressure_kpa"] < 34
 
+    def test_antoine_benzene_80c_near_1_atm(self):
+        # benzene bp is 80.1 C at 1 atm (~101.3 kPa)
+        result = antoine_vapor_pressure("benzene", 80)
+        assert 95 < result["vapor_pressure_kpa"] < 108
+
+    def test_antoine_toluene_111c_near_1_atm(self):
+        # toluene bp is 110.6 C at 1 atm
+        result = antoine_vapor_pressure("toluene", 110.6)
+        assert 95 < result["vapor_pressure_kpa"] < 108
+
+    def test_antoine_acetone_56c_near_1_atm(self):
+        # acetone bp is 56.1 C at 1 atm
+        result = antoine_vapor_pressure("acetone", 56)
+        assert 95 < result["vapor_pressure_kpa"] < 108
+
     def test_antoine_unknown_compound(self):
         result = antoine_vapor_pressure("unobtainium", 100)
         assert "error" in result
@@ -88,4 +104,19 @@ class TestPythonExec:
 
     def test_syntax_error_returns_error(self):
         result = python_exec("def (")
+        assert "error" in result
+
+
+class TestLiterature:
+    def test_arxiv_search_returns_papers(self):
+        result = arxiv_search("transformer attention", max_results=2)
+        assert "error" not in result
+        assert result["count"] >= 1
+        first = result["papers"][0]
+        assert first["title"]
+        assert first["arxiv_id"]
+        assert isinstance(first["authors"], list)
+
+    def test_arxiv_search_max_results_validation(self):
+        result = arxiv_search("anything", max_results=0)
         assert "error" in result

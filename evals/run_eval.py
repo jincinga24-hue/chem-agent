@@ -28,11 +28,14 @@ def main():
         print(f"  Problem: {p['problem'][:110]}...")
 
         agent_result = run_agent(p["problem"], verbose=False)
-        num_check = numerical_check(
-            agent_result.final_answer,
-            p["expected_value"],
-            p["tolerance_pct"],
-        )
+        if p.get("expected_value") is None:
+            num_check = {"numerical_match": None, "extracted": None}
+        else:
+            num_check = numerical_check(
+                agent_result.final_answer,
+                p["expected_value"],
+                p["tolerance_pct"],
+            )
         judgement = judge(
             p["problem"],
             p["ground_truth"],
@@ -60,13 +63,15 @@ def main():
             "judgement": judgement,
         })
 
+    scored_numerical = [r for r in results if r["numerical_match"] is not None]
     summary = {
         "run_id": run_id,
         "backend": "claude -p",
         "total_score": total_score,
         "max_score": len(problems) * 10,
         "percent": round(total_score / (len(problems) * 10) * 100, 1),
-        "correct_numerical": sum(1 for r in results if r["numerical_match"]),
+        "correct_numerical": sum(1 for r in scored_numerical if r["numerical_match"]),
+        "numerical_count": len(scored_numerical),
         "problem_count": len(problems),
         "results": results,
     }
@@ -74,7 +79,7 @@ def main():
 
     print("\n" + "=" * 60)
     print(f"TOTAL: {total_score}/{len(problems) * 10} ({summary['percent']}%)")
-    print(f"Numerical correct: {summary['correct_numerical']}/{len(problems)}")
+    print(f"Numerical correct: {summary['correct_numerical']}/{len(scored_numerical)}")
     print(f"Results saved to: {out_path}")
 
 

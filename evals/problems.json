@@ -118,5 +118,45 @@
     "ground_truth": "Q = m*Cp*dT = 0.5 * 4180 * 50 = 104500 W. Since steam condenses at constant T, LMTD = (75-25)/ln(75/25) = 50/ln(3) = 45.51 C. A = Q/(U*LMTD) = 104500/(800*45.51) = 2.87 m^2. L = A/(pi*D_o) = 2.87/(pi*0.025) = 36.5 m.",
     "expected_value": 36.5,
     "tolerance_pct": 8.0
+  },
+  {
+    "id": "wilson-activity-coef",
+    "category": "non_ideal_thermo",
+    "problem": "Using the Wilson activity coefficient model for the ethanol(1)-water(2) binary, compute the activity coefficient gamma_1 for ethanol at x_1 = 0.3 and T = 70 C. Wilson parameters at 70 C: Lambda_12 = 0.1350, Lambda_21 = 0.9355 (dimensionless). Show the equation used and all intermediate values. Report gamma_1 to 3 significant figures.",
+    "ground_truth": "Wilson: ln(g1) = -ln(x1 + L12*x2) + x2*[L12/(x1 + L12*x2) - L21/(x2 + L21*x1)]. With x1=0.3, x2=0.7: A=x1+L12*x2=0.3945, B=x2+L21*x1=0.98065. ln(g1) = -ln(0.3945) + 0.7*(0.135/0.3945 - 0.9355/0.98065) = 0.9302 + 0.7*(0.3422 - 0.9540) = 0.9302 - 0.4282 = 0.5020. g1 = exp(0.5020) = 1.65.",
+    "expected_value": 1.65,
+    "tolerance_pct": 5.0
+  },
+  {
+    "id": "aspirin-cstr-multistep",
+    "category": "design",
+    "problem": "Design a CSTR for aspirin production via salicylic acid (SA) + acetic anhydride (AA) -> aspirin + acetic acid. Operating liquid-phase at 80 C. Rate law: r = k*[SA]*[AA] with k = 0.001 L/(mol*s). Feed concentrations: [SA]_0 = 2.0 mol/L, [AA]_0 = 2.2 mol/L (10 percent excess). Target: 80 percent conversion of SA. The plant must produce 100 kg/day of aspirin (MW = 180 g/mol). Assume constant liquid density and single-phase operation. Compute the required CSTR volume in liters.",
+    "ground_truth": "Aspirin production rate = 100000/180/86400 = 6.43e-3 mol/s. SA consumption equals aspirin production (1:1 stoich). Feed molar flow F_SA0 = r_aspirin/X = 6.43e-3/0.8 = 8.04e-3 mol/s. Volumetric flow v = F_SA0/[SA]0 = 8.04e-3/2.0 = 4.02e-3 L/s. Outlet [SA] = 2.0*(1-0.8) = 0.4, [AA] = 2.2 - 2.0*0.8 = 0.6 mol/L. Rate at outlet: r = 0.001*0.4*0.6 = 2.4e-4 mol/(L*s). CSTR: V = F_SA0*X/r = v*[SA]0*X/r = 4.02e-3*2.0*0.8/2.4e-4 = 26.8 L.",
+    "expected_value": 26.8,
+    "tolerance_pct": 10.0
+  },
+  {
+    "id": "vle-flash-benzene-toluene",
+    "category": "separation",
+    "problem": "A binary mixture with overall composition 50 mol percent benzene and 50 mol percent toluene is flashed at T = 95 C and P = 101.325 kPa (1 atm). Assume ideal solution (Raoult's law) and ideal vapor. Use Antoine to get pure-component vapor pressures. Solve the Rachford-Rice equation to find the vapor fraction V (mol vapor / mol feed), then report the vapor-phase mole fraction of benzene (y_benzene) to 3 significant figures.",
+    "ground_truth": "At 95 C: P_sat_benzene ~ 157 kPa, P_sat_toluene ~ 63.6 kPa. K_benzene = 157/101.325 = 1.549, K_toluene = 0.628. Rachford-Rice: sum(z_i*(K_i-1)/(1 + V*(K_i-1))) = 0. Solving: V ~ 0.434. x_benzene = z/(1+V*(K-1)) = 0.5/(1+0.434*0.549) = 0.404. y_benzene = K*x = 1.549 * 0.404 = 0.625.",
+    "expected_value": 0.625,
+    "tolerance_pct": 6.0
+  },
+  {
+    "id": "scfm-to-kg-per-hour",
+    "category": "unit_conversion",
+    "problem": "A methane (MW = 16.04 g/mol) gas stream flows at 1000 SCFM (standard cubic feet per minute). US standard conditions: 60 F (15.56 C, 288.71 K) and 1 atm (101.325 kPa). Assume ideal gas. Compute the mass flow rate in kg/h. Be careful with unit conversions: 1 ft = 0.3048 m, so 1 ft^3 = 0.0283168 m^3.",
+    "ground_truth": "Volumetric flow in SI: 1000 ft^3/min * 0.0283168 m^3/ft^3 / 60 s/min = 0.47195 m^3/s. Molar volume at SC: V_m = RT/P = 8.314*288.71/101325 = 0.02369 m^3/mol. Molar flow n = V/V_m = 0.47195/0.02369 = 19.92 mol/s. Mass flow = 19.92 * 16.04/1000 = 0.3195 kg/s = 1150 kg/h.",
+    "expected_value": 1150,
+    "tolerance_pct": 3.0
+  },
+  {
+    "id": "arxiv-llm-chemistry",
+    "category": "literature",
+    "problem": "Use the arxiv_search tool to find a recent (2023 or later) paper on 'LLM agents for chemistry'. In your final answer, report the paper's arxiv_id, full title, and the first author. Use max_results = 3 in your search.",
+    "ground_truth": "Agent should call arxiv_search with a relevant query, then report a real paper found. Any actually-returned paper with arxiv_id, title, and first author listed is acceptable. Key check: did the agent successfully use arxiv_search and cite a real recent paper?",
+    "expected_value": null,
+    "tolerance_pct": 0
   }
 ]

@@ -23,6 +23,11 @@ AVAILABLE TOOLS:
    Execute Python for arbitrary math (reactor sizing, mass balance, Fenske, etc.).
    Has math and numpy (as np) available. MUST print() the final result.
    No file or network I/O allowed.
+
+7. arxiv_search(query: str, max_results: int = 5)
+   Search arxiv.org for recent scientific papers. Returns list with arxiv_id,
+   title, authors, abstract summary, published date, category, URL. Use when
+   a problem asks for literature, recent research, or paper citations.
 """
 
 SYSTEM_PROMPT = f"""You are ChemAgent, an autonomous chemical engineering problem solver.

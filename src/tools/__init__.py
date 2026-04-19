@@ -1,6 +1,7 @@
 from .molecular import molecular_weight, molecular_properties, name_to_smiles
 from .thermo import antoine_vapor_pressure, ideal_gas_volume
 from .python_exec import python_exec
+from .literature import arxiv_search
 
 TOOL_FUNCTIONS = {
     "molecular_weight": molecular_weight,
@@ -9,6 +10,7 @@ TOOL_FUNCTIONS = {
     "antoine_vapor_pressure": antoine_vapor_pressure,
     "ideal_gas_volume": ideal_gas_volume,
     "python_exec": python_exec,
+    "arxiv_search": arxiv_search,
 }
 
 TOOL_SCHEMAS = [
@@ -79,6 +81,18 @@ TOOL_SCHEMAS = [
                 "code": {"type": "string", "description": "Python code. Print final answer with print()."},
             },
             "required": ["code"],
+        },
+    },
+    {
+        "name": "arxiv_search",
+        "description": "Search arxiv.org for scientific papers. Returns recent (sorted by date, newest first) papers matching the free-text query. Each paper has arxiv_id, title, authors, abstract summary, published date, category, and URL. Use when a problem asks for literature, recent research, or paper citations.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Free-text query, e.g. 'LLM agents for chemistry'"},
+                "max_results": {"type": "integer", "description": "Number of results (1-20, default 5)"},
+            },
+            "required": ["query"],
         },
     },
 ]
