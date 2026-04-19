@@ -21,7 +21,9 @@ AVAILABLE TOOLS:
 
 6. python_exec(code: str)
    Execute Python for arbitrary math (reactor sizing, mass balance, Fenske, etc.).
-   Has math and numpy (as np) available. MUST print() the final result.
+   Has math, numpy (as np), scipy, and statistics available. Use
+   scipy.optimize for nonlinear fitting, scipy.integrate for integrals,
+   scipy.optimize.brentq/fsolve for root finding. MUST print() the final result.
    No file or network I/O allowed.
 
 7. arxiv_search(query: str, max_results: int = 5)
@@ -55,7 +57,7 @@ RULES:
 - In your final_answer, show the equations used, units, and the final numerical value.
 """
 
-JUDGE_PROMPT = """You are an expert chemical engineering professor grading an autonomous agent's solution.
+JUDGE_PROMPT_NUMERICAL = """You are an expert chemical engineering professor grading an autonomous agent's solution.
 
 The student (agent) was given this problem:
 ---
@@ -77,8 +79,8 @@ The agent's tool-call trace (summary):
 {trace}
 ---
 
-Grade the solution on a 0-10 scale using this rubric:
-- Correctness of final numerical answer (within 5% tolerance): 6 points
+Grade on a 0-10 scale:
+- Correctness of final numerical answer (within stated tolerance): 6 points
 - Correct method / equations used: 2 points
 - Appropriate tool use (not doing complex math in head): 1 point
 - Units stated, assumptions clear: 1 point
@@ -88,3 +90,42 @@ Respond with ONLY a single JSON code block (no prose outside it):
 {{"score": <0-10>, "correct": <true|false>, "reasoning": "<one paragraph>"}}
 ```
 """
+
+
+JUDGE_PROMPT_QUALITATIVE = """You are an expert chemical engineering professor grading an autonomous agent's solution to a qualitative (non-numerical) problem.
+
+The student (agent) was given this problem:
+---
+{problem}
+---
+
+Success criteria:
+---
+{ground_truth}
+---
+
+The agent's final answer:
+---
+{agent_answer}
+---
+
+The agent's tool-call trace (summary):
+---
+{trace}
+---
+
+Grade on a 0-10 scale:
+- Completeness — all requested information present in the answer: 4 points
+- Factual accuracy — information reported matches what was actually returned by tools: 3 points
+- Appropriate tool use — agent used the right tool with sensible parameters: 2 points
+- Clarity and structure of the answer: 1 point
+
+Respond with ONLY a single JSON code block (no prose outside it):
+```json
+{{"score": <0-10>, "correct": <true|false>, "reasoning": "<one paragraph>"}}
+```
+"""
+
+
+# Back-compat alias so older callers work.
+JUDGE_PROMPT = JUDGE_PROMPT_NUMERICAL

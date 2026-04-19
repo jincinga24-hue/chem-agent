@@ -106,6 +106,27 @@ class TestPythonExec:
         result = python_exec("def (")
         assert "error" in result
 
+    def test_scipy_available(self):
+        code = "from scipy.optimize import brentq\nprint(round(brentq(lambda x: x**2 - 2, 0, 2), 4))"
+        result = python_exec(code)
+        assert result["stdout"] == "1.4142"
+
+
+class TestAgentParsing:
+    """Agent JSON parsing tolerates literal newlines inside code strings."""
+
+    def test_extract_action_handles_multiline_code(self):
+        from src.agent import _extract_action
+
+        raw = '''```json
+{"action": "tool_call", "tool": "python_exec", "input": {"code": "import math
+x = math.sqrt(2)
+print(x)"}}
+```'''
+        parsed = _extract_action(raw)
+        assert parsed["action"] == "tool_call"
+        assert "math.sqrt(2)" in parsed["input"]["code"]
+
 
 class TestLiterature:
     def test_arxiv_search_returns_papers(self):

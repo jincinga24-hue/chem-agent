@@ -158,5 +158,29 @@
     "ground_truth": "Agent should call arxiv_search with a relevant query, then report a real paper found. Any actually-returned paper with arxiv_id, title, and first author listed is acceptable. Key check: did the agent successfully use arxiv_search and cite a real recent paper?",
     "expected_value": null,
     "tolerance_pct": 0
+  },
+  {
+    "id": "wilson-parameter-fit",
+    "category": "optimization",
+    "problem": "Given isothermal VLE data for ethanol(1)-water(2) at 70 C with pure-component saturation pressures P1sat = 72.1 kPa and P2sat = 31.2 kPa:\nx1_data = [0.1, 0.3, 0.5, 0.7, 0.9]\ny1_data = [0.452, 0.576, 0.658, 0.758, 0.901]\n\nFit the Wilson binary parameters Lambda_12 and Lambda_21 by minimizing the sum of squared residuals (y1_calc - y1_data)^2, using scipy.optimize.least_squares or similar. Use the Wilson activity coefficient model:\nln(gamma_1) = -ln(x1 + L12*x2) + x2*[L12/(x1 + L12*x2) - L21/(x2 + L21*x1)]\nln(gamma_2) = -ln(x2 + L21*x1) - x1*[L12/(x1 + L12*x2) - L21/(x2 + L21*x1)]\nAnd modified Raoult's law: y_i*P = x_i*gamma_i*P_sat_i, with P = x1*gamma_1*P1sat + x2*gamma_2*P2sat.\nInitial guess: L12 = 0.5, L21 = 0.5. Report the fitted value of Lambda_12 to 3 significant figures.",
+    "ground_truth": "The data was generated from Lambda_12 = 0.15, Lambda_21 = 0.90, so a correct nonlinear fit should recover Lambda_12 ~ 0.15. Agent must write the Wilson model, compute y1_calc for each x1, and minimize SSR via scipy.optimize.least_squares. Expected ~ 0.15 within a 25% tolerance due to fitting noise and multiple valid minima.",
+    "expected_value": 0.15,
+    "tolerance_pct": 25.0
+  },
+  {
+    "id": "kinetic-order-regression",
+    "category": "optimization",
+    "problem": "Concentration vs time data for a liquid-phase reaction A -> products at constant volume:\nt (s) = [0, 30, 60, 120, 240, 480]\nC_A (mol/L) = [1.0, 0.667, 0.500, 0.333, 0.200, 0.111]\n\nDetermine whether the reaction is first-order or second-order by fitting BOTH models (first-order: C_A = C_A0*exp(-k*t); second-order: 1/C_A = 1/C_A0 + k*t). Compare the coefficient of determination R^2 for each fit and conclude which order fits better. Report the rate constant k of the better-fitting model (in its correct units).",
+    "ground_truth": "Second order fits perfectly: 1/C_A values are [1, 1.5, 2, 3, 5, 9], linear in t with slope 1/60 = 0.01667 L/(mol*s). First order fits poorly (ln(CA/CA0) is not linear in t). Expected k = 0.01667 L/(mol*s). Agent should explicitly compare R^2 values and correctly identify second-order.",
+    "expected_value": 0.01667,
+    "tolerance_pct": 5.0
+  },
+  {
+    "id": "underwood-min-reflux",
+    "category": "optimization",
+    "problem": "A distillation column separates a ternary saturated liquid feed (q = 1) of composition: z_A = 0.3, z_B = 0.3, z_C = 0.4. Relative volatilities referenced to C: alpha_A = 4.0, alpha_B = 2.0, alpha_C = 1.0. Distillate composition is: x_DA = 0.90, x_DB = 0.08, x_DC = 0.02. Using the Underwood equations, solve for the root theta of the first Underwood equation between alpha_B = 2.0 and alpha_A = 4.0 (use scipy.optimize.brentq), then compute the minimum reflux ratio Rmin from the second Underwood equation. Report Rmin to 3 significant figures.\n\nUnderwood eq 1 (for q = 1): sum_i [alpha_i * z_i / (alpha_i - theta)] = 0\nUnderwood eq 2: Rmin + 1 = sum_i [alpha_i * x_Di / (alpha_i - theta)]",
+    "ground_truth": "Solving Underwood eq 1 for theta in (2, 4) gives theta ~ 2.785. Then Rmin + 1 = 4*0.9/(4-2.785) + 2*0.08/(2-2.785) + 1*0.02/(1-2.785) = 2.963 - 0.204 - 0.0112 = 2.748. Rmin = 1.748 ~ 1.75.",
+    "expected_value": 1.75,
+    "tolerance_pct": 10.0
   }
 ]

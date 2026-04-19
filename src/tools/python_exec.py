@@ -9,7 +9,7 @@ import contextlib
 import builtins
 
 
-ALLOWED_MODULES = {"math", "numpy", "statistics"}
+ALLOWED_MODULES = {"math", "numpy", "statistics", "scipy"}
 
 
 def _safe_import(name, *args, **kwargs):
@@ -22,9 +22,13 @@ def python_exec(code: str) -> dict:
     stdout = io.StringIO()
     try:
         try:
-            import numpy as np  # optional
+            import numpy as np
         except ImportError:
             np = None
+        try:
+            import scipy
+        except ImportError:
+            scipy = None
 
         sandbox_globals = {
             "__builtins__": {
@@ -38,6 +42,7 @@ def python_exec(code: str) -> dict:
             },
             "math": math,
             "np": np,
+            "scipy": scipy,
         }
 
         with contextlib.redirect_stdout(stdout):

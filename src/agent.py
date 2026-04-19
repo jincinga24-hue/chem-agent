@@ -24,9 +24,10 @@ class AgentResult:
 def _extract_action(raw: str) -> dict[str, Any]:
     match = JSON_BLOCK_RE.search(raw)
     block = match.group(1) if match else raw.strip()
-    # Also handle plain JSON without fencing.
+    # strict=False tolerates literal newlines/tabs inside JSON string values —
+    # common when Claude writes multi-line Python inside a "code" field.
     try:
-        return json.loads(block)
+        return json.loads(block, strict=False)
     except json.JSONDecodeError as e:
         raise ValueError(f"Could not parse action JSON: {e}\n---\n{raw[:400]}")
 

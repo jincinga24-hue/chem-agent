@@ -28,7 +28,8 @@ def main():
         print(f"  Problem: {p['problem'][:110]}...")
 
         agent_result = run_agent(p["problem"], verbose=False)
-        if p.get("expected_value") is None:
+        is_qualitative = p.get("expected_value") is None
+        if is_qualitative:
             num_check = {"numerical_match": None, "extracted": None}
         else:
             num_check = numerical_check(
@@ -41,6 +42,7 @@ def main():
             p["ground_truth"],
             agent_result.final_answer,
             agent_result.trace,
+            qualitative=is_qualitative,
         )
 
         score = judgement.get("score", 0)

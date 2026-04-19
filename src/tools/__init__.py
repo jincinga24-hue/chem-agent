@@ -74,7 +74,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "python_exec",
-        "description": "Execute Python code for arbitrary numerical calculations (reactor sizing, mass balance, distillation, etc.). Has access to math, numpy. MUST print() the final result. Do not use for file/network I/O.",
+        "description": "Execute Python code for arbitrary numerical calculations and optimization (reactor sizing, mass balance, distillation, parameter fitting). Has math, numpy (np), scipy, and statistics. Use scipy.optimize for fitting (least_squares, curve_fit, minimize), scipy.integrate, scipy.optimize.brentq / fsolve for root finding. MUST print() the final result. No file or network I/O.",
         "input_schema": {
             "type": "object",
             "properties": {
