@@ -1,10 +1,9 @@
-"""CLI entry point for ChemAgent.
+"""CLI entry point for ChemAgent. Uses `claude -p` backend — no API key required.
 
 Usage:
     python examples/run_agent.py "What is the molecular weight of aspirin?"
 """
 import sys
-import os
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -13,10 +12,6 @@ from src.agent import run_agent
 
 
 def main():
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("ERROR: set ANTHROPIC_API_KEY in .env")
-        sys.exit(1)
-
     if len(sys.argv) < 2:
         question = "What is the molecular weight of aspirin in g/mol?"
         print(f"No question provided. Using default: {question}\n")

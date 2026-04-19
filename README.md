@@ -2,34 +2,35 @@
 
 Autonomous chemistry/ChemE research agent. Plans, reasons, and solves chemical engineering problems using LLM tool-use over molecular + thermodynamic + computational tools.
 
-**Why this exists:** Bridge between domain chemistry knowledge and modern LLM agent systems. Portfolio project positioning me at the AI × chemistry intersection.
+**Backend:** [`claude -p`](https://docs.claude.com/en/docs/claude-code/cli-reference) — uses your existing Claude Code auth. No separate API key required.
 
 ## What it does
 
 Given a ChemE problem like "Design a CSTR for first-order reaction A→B with k=0.1/s, CA0=2 mol/L, X=0.8, v=10 L/min", ChemAgent:
 
-1. Plans a solution approach
-2. Calls tools — molecular property lookup (RDKit), thermodynamic calcs (Antoine eq), Python execution for math
-3. Produces a reasoned answer with steps shown
-4. Is evaluated by an LLM-judge against a ground-truth benchmark
+1. Plans a solution approach (ReAct loop)
+2. Calls tools — molecular lookup (RDKit), thermo (Antoine), Python execution for math
+3. Produces a reasoned answer with steps
+4. Is scored by an LLM-judge against a ground-truth benchmark
 
 ## Stack
 
-- **Anthropic Claude** (tool-use native API) — agent brain
+- **`claude -p`** (ReAct JSON actions) — agent brain, uses your Claude Code subscription
 - **RDKit** — molecular properties, SMILES parsing
 - **Python sandbox** — arbitrary calculations
-- **Pytest** — unit tests on tools
+- **Pytest** — 18 unit tests on tools
 - **LLM-judge eval harness** — 5 textbook problems, scored 0-10
 
 ## Setup
 
 ```bash
 cd chem-agent
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env  # add ANTHROPIC_API_KEY
 ```
+
+Prerequisite: [Claude Code](https://docs.claude.com/en/docs/claude-code) installed and authenticated.
 
 ## Run
 
@@ -39,40 +40,44 @@ python examples/run_agent.py "Calculate molecular weight of aspirin"
 
 # Run full eval suite
 python evals/run_eval.py
+
+# Run tests
+pytest tests/
 ```
 
 ## Architecture
 
 ```
 src/
-  agent.py        — tool-use loop with Claude
-  prompts.py      — system prompts
+  agent.py        — ReAct tool-use loop
+  claude_cli.py   — subprocess wrapper for `claude -p`
+  prompts.py      — system + judge prompts
   tools/
     molecular.py  — RDKit wrappers (MW, logP, SMILES)
-    thermo.py     — Antoine vapor pressure, heat capacity
+    thermo.py     — Antoine vapor pressure, ideal gas
     python_exec.py — sandboxed calculator
 evals/
-  problems.json   — 5 benchmark ChemE problems + ground truth
+  problems.json   — 5 benchmark ChemE problems
   judge.py        — LLM-judge scoring
   run_eval.py     — runs agent on all problems, reports score
 tests/
-  test_tools.py   — unit tests
+  test_tools.py   — 18 unit tests
 ```
 
 ## Roadmap
 
-- [x] v0.1 — single-step tool-use, 5 problems eval
-- [ ] v0.2 — multi-step planning, 20 problems, trace logging
-- [ ] v0.3 — LangGraph refactor, RAG over ChemE textbook
-- [ ] v0.4 — DWSIM integration for real process simulation
-- [ ] v0.5 — literature search tool (arxiv + PubMed)
+- [x] v0.1 — single-step tool-use, 5 problems eval, claude -p backend
+- [ ] v0.2 — 20 problems (reactors, heat exchangers, pinch, separations)
+- [ ] v0.3 — literature search tool (arxiv + PubMed APIs)
+- [ ] v0.4 — RAG over Perry's Handbook PDFs
+- [ ] v0.5 — DWSIM integration for real process simulation
 
 ## Eval benchmark (v0.1)
 
 | # | Problem type | Tools required |
 |---|-------------|----------------|
-| 1 | Molecular weight lookup | molecular.mw |
-| 2 | Vapor pressure calc | thermo.antoine |
+| 1 | Molecular weight lookup | name_to_smiles, molecular_weight |
+| 2 | Vapor pressure (Antoine) | antoine_vapor_pressure |
 | 3 | CSTR sizing | python_exec |
 | 4 | Distillation stages (Fenske) | python_exec |
 | 5 | Mass balance | python_exec |

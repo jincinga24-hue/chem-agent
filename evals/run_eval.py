@@ -1,6 +1,5 @@
-"""Run ChemAgent against the benchmark problem set and report scores."""
+"""Run ChemAgent against the benchmark problem set. Uses `claude -p` — no API key."""
 import json
-import os
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -26,7 +25,7 @@ def main():
     total_score = 0
     for i, p in enumerate(problems, 1):
         print(f"\n[{i}/{len(problems)}] {p['id']} ({p['category']})")
-        print(f"  Problem: {p['problem'][:100]}...")
+        print(f"  Problem: {p['problem'][:110]}...")
 
         agent_result = run_agent(p["problem"], verbose=False)
         num_check = numerical_check(
@@ -43,10 +42,10 @@ def main():
 
         score = judgement.get("score", 0)
         total_score += score
-        print(f"  Agent answer: {agent_result.final_answer[:150]}...")
-        print(f"  Tool calls: {agent_result.tool_calls}")
+        print(f"  Agent answer: {agent_result.final_answer[:150]}")
+        print(f"  Tool calls: {agent_result.tool_calls} | Stop: {agent_result.stopped_reason}")
         print(f"  Numerical match: {num_check['numerical_match']} (extracted: {num_check['extracted']})")
-        print(f"  Judge score: {score}/10 — {judgement.get('reasoning', '')[:120]}")
+        print(f"  Judge: {score}/10 — {judgement.get('reasoning', '')[:120]}")
 
         results.append({
             "id": p["id"],
@@ -56,12 +55,14 @@ def main():
             "extracted_value": num_check["extracted"],
             "expected_value": p["expected_value"],
             "tool_calls": agent_result.tool_calls,
+            "stopped_reason": agent_result.stopped_reason,
             "agent_answer": agent_result.final_answer,
             "judgement": judgement,
         })
 
     summary = {
         "run_id": run_id,
+        "backend": "claude -p",
         "total_score": total_score,
         "max_score": len(problems) * 10,
         "percent": round(total_score / (len(problems) * 10) * 100, 1),
@@ -78,7 +79,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("ERROR: set ANTHROPIC_API_KEY in .env")
-        sys.exit(1)
     main()

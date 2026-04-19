@@ -1,19 +1,16 @@
-"""ChemAgent tool-use loop via Anthropic SDK."""
-import os
+"""ChemAgent ReAct loop powered by `claude -p` (no API key required)."""
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from anthropic import Anthropic
-from dotenv import load_dotenv
-
+from .claude_cli import claude_call
 from .prompts import SYSTEM_PROMPT
-from .tools import TOOL_FUNCTIONS, TOOL_SCHEMAS
+from .tools import TOOL_FUNCTIONS
 
-load_dotenv()
 
-DEFAULT_MODEL = os.getenv("AGENT_MODEL", "claude-opus-4-7")
 MAX_TOOL_TURNS = 12
+JSON_BLOCK_RE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
 
 
 @dataclass
@@ -24,65 +21,82 @@ class AgentResult:
     stopped_reason: str = ""
 
 
-def run_agent(question: str, model: str = DEFAULT_MODEL, verbose: bool = False) -> AgentResult:
-    client = Anthropic()
-    messages: list[dict[str, Any]] = [{"role": "user", "content": question}]
+def _extract_action(raw: str) -> dict[str, Any]:
+    match = JSON_BLOCK_RE.search(raw)
+    block = match.group(1) if match else raw.strip()
+    # Also handle plain JSON without fencing.
+    try:
+        return json.loads(block)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Could not parse action JSON: {e}\n---\n{raw[:400]}")
+
+
+def _render_history(question: str, history: list[dict[str, Any]]) -> str:
+    lines = [f"PROBLEM:\n{question}\n"]
+    for step in history:
+        if step["type"] == "tool_call":
+            lines.append(f"\n[your previous action]")
+            lines.append(f'```json\n{{"action": "tool_call", "tool": "{step["tool"]}", "input": {json.dumps(step["input"])}}}\n```')
+            lines.append(f"\n[tool result]")
+            lines.append(f"```json\n{json.dumps(step['result'])}\n```")
+    lines.append("\nWhat is your next action? Respond with a single JSON code block as instructed.")
+    return "\n".join(lines)
+
+
+def run_agent(question: str, verbose: bool = False) -> AgentResult:
+    history: list[dict[str, Any]] = []
     trace: list[dict[str, Any]] = []
     tool_calls = 0
 
     for turn in range(MAX_TOOL_TURNS):
-        response = client.messages.create(
-            model=model,
-            max_tokens=4096,
-            system=SYSTEM_PROMPT,
-            tools=TOOL_SCHEMAS,
-            messages=messages,
-        )
-
-        trace.append({"turn": turn, "stop_reason": response.stop_reason, "content": [
-            {"type": b.type, **({"text": b.text} if b.type == "text" else {
-                "tool": b.name, "input": b.input, "id": b.id,
-            })} for b in response.content
-        ]})
-
+        prompt = _render_history(question, history)
         if verbose:
-            for block in response.content:
-                if block.type == "text":
-                    print(f"[turn {turn}] {block.text}")
-                elif block.type == "tool_use":
-                    print(f"[turn {turn}] tool: {block.name}({json.dumps(block.input)[:120]})")
+            print(f"\n[turn {turn}] calling claude -p ...")
 
-        if response.stop_reason == "end_turn":
-            final = "\n".join(b.text for b in response.content if b.type == "text")
-            return AgentResult(final_answer=final.strip(), trace=trace,
-                               tool_calls=tool_calls, stopped_reason="end_turn")
+        raw = claude_call(prompt, system_prompt=SYSTEM_PROMPT)
 
-        if response.stop_reason != "tool_use":
-            return AgentResult(final_answer="[no answer]", trace=trace,
-                               tool_calls=tool_calls, stopped_reason=response.stop_reason)
+        try:
+            action = _extract_action(raw)
+        except ValueError as e:
+            trace.append({"turn": turn, "parse_error": str(e), "raw": raw[:500]})
+            return AgentResult(final_answer=raw.strip(), trace=trace,
+                               tool_calls=tool_calls, stopped_reason="parse_error")
 
-        messages.append({"role": "assistant", "content": response.content})
+        trace.append({"turn": turn, "action": action})
 
-        tool_results_content: list[dict[str, Any]] = []
-        for block in response.content:
-            if block.type != "tool_use":
-                continue
-            tool_calls += 1
-            fn = TOOL_FUNCTIONS.get(block.name)
-            if fn is None:
-                result = {"error": f"Unknown tool: {block.name}"}
-            else:
-                try:
-                    result = fn(**block.input)
-                except Exception as e:
-                    result = {"error": f"{type(e).__name__}: {e}"}
-            tool_results_content.append({
-                "type": "tool_result",
-                "tool_use_id": block.id,
-                "content": json.dumps(result),
-            })
+        if action.get("action") == "final_answer":
+            answer = action.get("answer", "")
+            if verbose:
+                print(f"[turn {turn}] FINAL: {answer[:200]}")
+            return AgentResult(final_answer=answer, trace=trace,
+                               tool_calls=tool_calls, stopped_reason="final_answer")
 
-        messages.append({"role": "user", "content": tool_results_content})
+        if action.get("action") != "tool_call":
+            return AgentResult(final_answer=raw.strip(), trace=trace,
+                               tool_calls=tool_calls, stopped_reason="unknown_action")
+
+        tool_name = action.get("tool", "")
+        tool_input = action.get("input", {})
+        fn = TOOL_FUNCTIONS.get(tool_name)
+        if fn is None:
+            result: dict[str, Any] = {"error": f"Unknown tool: {tool_name}"}
+        else:
+            try:
+                result = fn(**tool_input)
+            except Exception as e:
+                result = {"error": f"{type(e).__name__}: {e}"}
+
+        tool_calls += 1
+        if verbose:
+            print(f"[turn {turn}] tool: {tool_name}({json.dumps(tool_input)[:80]})")
+            print(f"[turn {turn}] result: {json.dumps(result)[:200]}")
+
+        history.append({
+            "type": "tool_call",
+            "tool": tool_name,
+            "input": tool_input,
+            "result": result,
+        })
 
     return AgentResult(final_answer="[max turns reached]", trace=trace,
                        tool_calls=tool_calls, stopped_reason="max_turns")
