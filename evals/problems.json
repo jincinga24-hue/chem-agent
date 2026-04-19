@@ -19,15 +19,15 @@
     "id": "cstr-sizing",
     "category": "reactor",
     "problem": "Design a CSTR for a liquid-phase first-order reaction A -> B with k = 0.1 per second. The inlet concentration C_A0 = 2 mol/L, target conversion X = 0.8, and volumetric flow rate v = 10 L/min. What is the required reactor volume in liters?",
-    "ground_truth": "V = v * C_A0 * X / (k * C_A) where C_A = C_A0*(1-X). With k in per-second, convert v to L/s (10/60). V = (10/60) * 2 * 0.8 / (0.1 * 2 * 0.2) = 0.1667 * 1.6 / 0.04 = 6.67 L.",
+    "ground_truth": "V = v * C_A0 * X / (k * C_A) where C_A = C_A0*(1-X). With v=10 L/min = 0.1667 L/s: V = 0.1667 * 1.6 / 0.04 = 6.67 L.",
     "expected_value": 6.67,
     "tolerance_pct": 5.0
   },
   {
     "id": "fenske-stages",
     "category": "separation",
-    "problem": "Using the Fenske equation, compute the minimum number of equilibrium stages required to separate a binary mixture of benzene and toluene with x_D (benzene in distillate) = 0.95 and x_B (benzene in bottoms) = 0.05. Use relative volatility alpha = 2.5. Report the minimum stages (including reboiler).",
-    "ground_truth": "Nmin = log[(xD/(1-xD)) * ((1-xB)/xB)] / log(alpha) = log(19*19)/log(2.5) = log(361)/log(2.5) = 2.5575/0.3979 = 6.43 stages.",
+    "problem": "Using the Fenske equation, compute the minimum number of equilibrium stages required to separate a binary mixture of benzene and toluene with x_D = 0.95 and x_B = 0.05. Use relative volatility alpha = 2.5. Report the minimum stages (including reboiler).",
+    "ground_truth": "Nmin = log[(xD/(1-xD)) * ((1-xB)/xB)] / log(alpha) = log(361)/log(2.5) = 6.43 stages.",
     "expected_value": 6.43,
     "tolerance_pct": 5.0
   },
@@ -35,8 +35,88 @@
     "id": "mass-balance",
     "category": "mass_balance",
     "problem": "Two streams are mixed. Stream 1: 100 kg/h of 20 wt% NaCl solution. Stream 2: 50 kg/h of 50 wt% NaCl solution. What is the NaCl mass fraction in the combined outlet stream? Report as a decimal.",
-    "ground_truth": "Total NaCl = 100*0.2 + 50*0.5 = 20 + 25 = 45 kg/h. Total flow = 150 kg/h. Fraction = 45/150 = 0.30.",
+    "ground_truth": "Total NaCl = 100*0.2 + 50*0.5 = 45 kg/h. Total = 150 kg/h. Fraction = 45/150 = 0.30.",
     "expected_value": 0.30,
     "tolerance_pct": 2.0
+  },
+  {
+    "id": "lmtd-hx-area",
+    "category": "heat_transfer",
+    "problem": "A counter-current heat exchanger cools hot oil from 150 C to 80 C using cooling water that enters at 20 C and leaves at 50 C. Oil mass flow rate = 5000 kg/h with Cp = 2.5 kJ/(kg*K). Overall heat transfer coefficient U = 500 W/(m^2*K). Compute the required heat transfer area in m^2.",
+    "ground_truth": "Q = m*Cp*dT = (5000/3600)*2500*70 = 243056 W. LMTD (counter-current): dT1 = 150-50 = 100, dT2 = 80-20 = 60. LMTD = (100-60)/ln(100/60) = 40/0.5108 = 78.30 C. A = Q/(U*LMTD) = 243056/(500*78.30) = 6.21 m^2.",
+    "expected_value": 6.21,
+    "tolerance_pct": 8.0
+  },
+  {
+    "id": "ntu-effectiveness",
+    "category": "heat_transfer",
+    "problem": "A counter-current shell-and-tube heat exchanger has: hot fluid heat capacity rate m*Cp = 3000 W/K entering at 200 C; cold fluid heat capacity rate m*Cp = 5000 W/K entering at 25 C. The product UA = 4500 W/K. Using the effectiveness-NTU method, compute the heat transfer rate Q in kW.",
+    "ground_truth": "Cmin = 3000, Cmax = 5000, Cr = 0.6. NTU = UA/Cmin = 1.5. eps = (1 - exp(-NTU*(1-Cr)))/(1 - Cr*exp(-NTU*(1-Cr))) = (1 - exp(-0.6))/(1 - 0.6*exp(-0.6)) = 0.4512/0.6707 = 0.6727. Qmax = Cmin*(Thi - Tci) = 3000*175 = 525 kW. Q = 0.6727 * 525 = 353 kW.",
+    "expected_value": 353,
+    "tolerance_pct": 5.0
+  },
+  {
+    "id": "monod-chemostat",
+    "category": "bioreactor",
+    "problem": "A bioreactor operates as a steady-state chemostat with dilution rate D = 0.2 /h. The organism follows Monod kinetics with mu_max = 0.5 /h and Ks = 0.1 g/L. Feed substrate S0 = 10 g/L. Yield coefficient Y_X/S = 0.5 g biomass / g substrate. Compute the steady-state biomass concentration X in g/L.",
+    "ground_truth": "At steady state mu = D, so 0.2 = 0.5*S/(0.1 + S) => S = 0.0667 g/L. X = Y*(S0 - S) = 0.5 * (10 - 0.0667) = 4.97 g/L.",
+    "expected_value": 4.97,
+    "tolerance_pct": 3.0
+  },
+  {
+    "id": "ergun-pressure-drop",
+    "category": "fluid_flow",
+    "problem": "Air flows through a packed bed of spherical particles. Bed length L = 2 m, diameter D = 0.15 m. Particle diameter dp = 5 mm, void fraction epsilon = 0.4. Air at 25 C: density rho = 1.18 kg/m^3, viscosity mu = 1.85e-5 Pa*s. Superficial velocity u = 0.5 m/s. Use the Ergun equation to compute pressure drop dP across the bed in Pa.",
+    "ground_truth": "dP/L = 150*mu*u*(1-eps)^2/(dp^2*eps^3) + 1.75*rho*u^2*(1-eps)/(dp*eps^3). Viscous term = 150*1.85e-5*0.5*0.36/(2.5e-5*0.064) = 312 Pa/m. Inertial term = 1.75*1.18*0.25*0.6/(0.005*0.064) = 968 Pa/m. dP/L = 1280 Pa/m. dP = 1280*2 = 2560 Pa.",
+    "expected_value": 2560,
+    "tolerance_pct": 8.0
+  },
+  {
+    "id": "pfr-first-order",
+    "category": "reactor",
+    "problem": "For a first-order liquid-phase reaction A -> B with k = 0.1 /s, initial concentration CA0 = 2 mol/L, target conversion X = 0.8, and volumetric flow rate v = 10 L/min, compute the required PFR volume in liters.",
+    "ground_truth": "For PFR first-order liquid-phase: V = (v/k)*ln(1/(1-X)) = (10/60)/0.1 * ln(5) = 1.667 * 1.609 = 2.68 L.",
+    "expected_value": 2.68,
+    "tolerance_pct": 5.0
+  },
+  {
+    "id": "kremser-absorption",
+    "category": "mass_transfer",
+    "problem": "A countercurrent absorption tower removes a solute from gas using solute-free liquid. Inlet gas flow G = 1000 mol/h with mole fraction y_in = 0.05. Outlet gas y_out = 0.005. Liquid flow L = 2000 mol/h (solute-free entering, x_in = 0). Linear equilibrium y = 0.8*x (so m = 0.8). Using the Kremser equation, compute the number of theoretical stages N.",
+    "ground_truth": "Absorption factor A = L/(m*G) = 2000/(0.8*1000) = 2.5. Kremser (x_in = 0): N = ln[((y_in - m*x_in)/(y_out - m*x_in))*(1-1/A) + 1/A]/ln(A) = ln[(0.05/0.005)*(1-0.4) + 0.4]/ln(2.5) = ln[6.4]/ln(2.5) = 1.856/0.916 = 2.03 stages.",
+    "expected_value": 2.03,
+    "tolerance_pct": 8.0
+  },
+  {
+    "id": "composite-wall-flux",
+    "category": "heat_transfer",
+    "problem": "A composite wall has three layers in series: brick 20 cm thick (k = 0.7 W/(m*K)), insulation 5 cm thick (k = 0.04 W/(m*K)), and plaster 2 cm thick (k = 0.5 W/(m*K)). Interior surface is at 22 C, exterior surface at -5 C. Neglecting convective resistances, compute the heat flux through the wall in W/m^2.",
+    "ground_truth": "R_total = 0.20/0.7 + 0.05/0.04 + 0.02/0.5 = 0.2857 + 1.25 + 0.04 = 1.576 m^2*K/W. q = dT/R = 27/1.576 = 17.13 W/m^2.",
+    "expected_value": 17.13,
+    "tolerance_pct": 5.0
+  },
+  {
+    "id": "pipe-pump-power",
+    "category": "fluid_flow",
+    "problem": "Water at 20 C (rho = 1000 kg/m^3, mu = 1e-3 Pa*s) flows through a horizontal pipe of length L = 100 m, inner diameter D = 0.1 m, at average velocity v = 2 m/s. Darcy friction factor f = 0.02 (assume constant, turbulent). Compute the ideal pump power required to overcome friction, in W (neglect pump efficiency).",
+    "ground_truth": "dP = f*(L/D)*rho*v^2/2 = 0.02*1000*1000*4/2 = 40000 Pa. Q = v*A = 2*pi*(0.05)^2 = 0.01571 m^3/s. Power = dP*Q = 40000*0.01571 = 628.3 W.",
+    "expected_value": 628.3,
+    "tolerance_pct": 5.0
+  },
+  {
+    "id": "batch-second-order",
+    "category": "reactor",
+    "problem": "A constant-volume liquid-phase batch reactor runs a second-order reaction with rate -dCA/dt = k*CA^2 where k = 0.05 L/(mol*s) and initial concentration CA0 = 1 mol/L. Compute the time in seconds required to achieve 75% conversion.",
+    "ground_truth": "For second-order -dCA/dt = k*CA^2: 1/CA - 1/CA0 = k*t. At X = 0.75, CA = CA0*(1-X) = 0.25 mol/L. t = (1/0.25 - 1/1)/0.05 = 3/0.05 = 60 s.",
+    "expected_value": 60,
+    "tolerance_pct": 3.0
+  },
+  {
+    "id": "steam-condenser-length",
+    "category": "heat_transfer",
+    "problem": "Saturated steam at 100 C condenses on the outside of a horizontal tube, heating water flowing inside from 25 C to 75 C. Water mass flow = 0.5 kg/s. Water Cp = 4180 J/(kg*K). The overall heat transfer coefficient based on outside area is U = 800 W/(m^2*K). Tube outer diameter = 25 mm. Compute the required tube length in meters.",
+    "ground_truth": "Q = m*Cp*dT = 0.5 * 4180 * 50 = 104500 W. Since steam condenses at constant T, LMTD = (75-25)/ln(75/25) = 50/ln(3) = 45.51 C. A = Q/(U*LMTD) = 104500/(800*45.51) = 2.87 m^2. L = A/(pi*D_o) = 2.87/(pi*0.025) = 36.5 m.",
+    "expected_value": 36.5,
+    "tolerance_pct": 8.0
   }
 ]
