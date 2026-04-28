@@ -1,0 +1,52 @@
+Polymer Molecular Weight and Dispersity
+
+Synthetic polymers are not single molecules but distributions of chain lengths.
+Two averages of this distribution matter most.
+
+Number-average molecular weight Mn
+Mn is the simple arithmetic mean of all chain weights. If a sample contains N_i chains
+of weight M_i, then Mn = sum(N_i M_i) / sum(N_i). Mn is the average a colligative
+property (osmotic pressure, freezing point depression) measures.
+
+Weight-average molecular weight Mw
+Mw weights each chain by its own mass: Mw = sum(N_i M_i^2) / sum(N_i M_i). Mw is what
+light scattering and viscometry measure. Mw is always greater than or equal to Mn,
+with equality only for a perfectly monodisperse sample.
+
+Dispersity Do (formerly polydispersity index, PDI)
+Dispersity is defined as Do = Mw / Mn. By definition Do >= 1. A Do close to 1.0
+(usually 1.0 to 1.2) indicates a narrow distribution typical of living/controlled
+polymerizations such as RAFT, ATRP, or anionic polymerization. Conventional free-
+radical polymerization typically gives Do around 1.5 to 2.5.
+
+Degree of polymerisation
+DP_n = Mn / M_repeat_unit, the number of repeat units in an average chain.
+
+Schulz-Flory dispersity
+A free-radical polymerization with chain transfer to monomer has a most-probable
+(Schulz-Flory) distribution with Do = 2 in the high-DP limit.
+
+Dispersity in RAFT (Mueller equation)
+For a controlled (RAFT, ATRP, NMP) polymerization, the dispersity at conversion x
+follows the Mueller equation in simplified form:
+  Do(x) = 1 + 1/DP_n(x) + (k_p / k_tr) (2 - x) / x
+where k_p is the propagation rate constant and k_tr is the chain transfer rate
+constant of the CTA. Equivalently, since the chain transfer constant C_tr = k_tr / k_p:
+  Do(x) = 1 + 1/DP_n(x) + (1 / C_tr) (2 - x) / x
+Higher C_tr gives narrower dispersity. At x close to 1 the second term tends to
+1/C_tr, so Do plateaus at approximately 1 + 1/C_tr. With CDB (C_tr ~ 6000) on
+styrene, the achievable dispersity is below 1.05 over a wide conversion window.
+
+Measurement
+Dispersity is measured by size-exclusion chromatography (SEC), also called gel
+permeation chromatography (GPC), with a refractive-index or light-scattering detector.
+Calibration standards (commonly polystyrene standards) calibrate the elution time vs
+molecular weight, but the apparent Mn from SEC depends on the standard, the solvent,
+and the column. Triple-detector SEC (RI + light scattering + viscometry) gives
+absolute Mn and Mw without standards.
+
+Implications for design
+A narrow dispersity (Do close to 1) is desirable when uniform chain length matters,
+e.g. for polymer therapeutics, block copolymers, and self-assembling materials. RAFT
+gives Do typically 1.05 to 1.20 if the CTA is matched to the monomer and the recipe is
+well-tuned.

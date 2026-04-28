@@ -1,4 +1,7 @@
-"""Run ChemAgent against the benchmark problem set. Uses `claude -p` — no API key."""
+"""Run ChemAgent against the benchmark problem set. Uses `claude -p` — no API key.
+
+Per-problem JSONL traces are written to traces/<run_id>/<problem_id>.jsonl.
+"""
 import json
 import sys
 from pathlib import Path
@@ -7,11 +10,13 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.agent import run_agent
+from src.tracing import Tracer
 from evals.judge import judge, numerical_check
 
 
 PROBLEMS_PATH = Path(__file__).parent / "problems.json"
 RESULTS_DIR = Path(__file__).resolve().parents[1] / "eval_results"
+TRACES_DIR = Path(__file__).resolve().parents[1] / "traces"
 
 
 def main():
@@ -27,7 +32,8 @@ def main():
         print(f"\n[{i}/{len(problems)}] {p['id']} ({p['category']})")
         print(f"  Problem: {p['problem'][:110]}...")
 
-        agent_result = run_agent(p["problem"], verbose=False)
+        with Tracer(run_id=run_id, problem_id=p["id"], base_dir=TRACES_DIR) as tracer:
+            agent_result = run_agent(p["problem"], verbose=False, tracer=tracer)
         is_qualitative = p.get("expected_value") is None
         if is_qualitative:
             num_check = {"numerical_match": None, "extracted": None}

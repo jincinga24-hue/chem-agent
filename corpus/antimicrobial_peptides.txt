@@ -1,0 +1,60 @@
+Antimicrobial Peptides (AMPs) — Design Principles
+
+Antimicrobial peptides are short cationic and amphipathic peptides found in nearly
+all forms of life as part of the innate immune defence. They typically contain 12 to
+50 residues, carry net positive charge of +2 to +9 at physiological pH, and have a
+significant fraction of hydrophobic residues. They kill bacteria primarily by
+disrupting the bacterial membrane.
+
+Key design parameters
+1. Net charge. AMPs are selectively attracted to bacterial membranes because bacterial
+   outer leaflets are rich in negatively charged lipids (phosphatidylglycerol, cardiolipin,
+   lipopolysaccharide), whereas mammalian outer leaflets are predominantly zwitterionic
+   (phosphatidylcholine). A net charge of +3 to +9 typically gives good selectivity
+   without excessive haemolysis.
+
+2. Hydrophobic moment. The hydrophobic moment uH (Eisenberg, Nature 299, 1982, 371)
+   measures the amphipathicity of a peptide assumed to fold into an alpha-helix. It is
+   defined as
+     uH = (1/N) sqrt[ (sum H_i sin(delta i))^2 + (sum H_i cos(delta i))^2 ]
+   where H_i is the hydrophobicity of residue i (Kyte-Doolittle or Eisenberg scale),
+   delta is the residue angle (100 deg per residue for an alpha-helix, 180 deg for a
+   beta-strand), and N is the number of residues. A high uH indicates that hydrophobic
+   residues cluster on one face of the helix; this drives membrane partitioning.
+   Active AMPs typically have alpha-helical uH > 0.4 on the normalised Eisenberg scale.
+
+3. Mean hydrophobicity. The average hydrophobicity per residue determines how strongly
+   the peptide partitions into membranes overall. Too hydrophobic and the peptide loses
+   selectivity (binds mammalian membranes too); too hydrophilic and it fails to insert.
+
+4. Secondary structure. Many AMPs are unstructured in solution and fold into
+   alpha-helices upon membrane binding. Helix-forming residues (A, E, L, M with
+   Chou-Fasman P_alpha > 1.1) favour formation; helix breakers (P, G with
+   P_alpha < 0.6) disrupt it.
+
+Mechanisms of membrane disruption
+- Carpet model: peptides accumulate parallel to the membrane, eventually disintegrating
+  it like a carpet.
+- Barrel-stave: peptides insert perpendicular to the membrane and form a transmembrane
+  pore lined by hydrophobic faces.
+- Toroidal pore: peptides bend the bilayer into a curved pore stabilised by
+  inward-facing peptide-lipid contacts.
+The dominant mechanism depends on peptide concentration, membrane composition, and
+the peptide's amphipathic geometry.
+
+Examples
+Melittin (GIGAVLKVLTTGLPALISWIKRKRQQ) from bee venom is a classic alpha-helical AMP.
+Its 26 residues carry net charge +5 to +6 at pH 7.4, and its alpha-helical uH on the
+Kyte-Doolittle scale is approximately 1.2 (or about 0.4 on the normalised Eisenberg
+scale). Melittin is highly active but also haemolytic, illustrating the
+selectivity-activity trade-off.
+
+Magainin-2 (GIGKFLHSAKKFGKAFVGEIMNS) from frog skin is a less haemolytic alpha-helical
+AMP, with charge approximately +4 and lower mean hydrophobicity than melittin.
+
+Wimley AMP design heuristic (ACS Chem Biol 5, 2010, 905):
+- Length: 8 to 30 residues
+- Net charge: +3 to +9
+- Hydrophobic moment uH (alpha helix): > 0.4 (normalised Eisenberg) or > 0.6 on
+  Kyte-Doolittle
+- Mean hydrophobicity: moderate, neither extreme.

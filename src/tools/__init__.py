@@ -14,6 +14,7 @@ from .fluids import (
 )
 from .polymer import raft_kinetics, raft_target_dp
 from .peptide import peptide_properties, helical_wheel_positions
+from .knowledge import rag_search, rebuild_index
 
 TOOL_FUNCTIONS = {
     "molecular_weight": molecular_weight,
@@ -35,6 +36,8 @@ TOOL_FUNCTIONS = {
     "raft_target_dp": raft_target_dp,
     "peptide_properties": peptide_properties,
     "helical_wheel_positions": helical_wheel_positions,
+    "rag_search": rag_search,
+    "rebuild_index": rebuild_index,
 }
 
 TOOL_SCHEMAS = [
@@ -259,6 +262,23 @@ TOOL_SCHEMAS = [
             },
             "required": ["sequence"],
         },
+    },
+    {
+        "name": "rag_search",
+        "description": "Retrieval-augmented search over a corpus of chemistry/polymer chemistry text notes. Returns top-k passages with source citations and relevance scores. Use this BEFORE the python_exec or polymer/peptide tools when a problem mentions concepts you want grounded in the local corpus (e.g. 'what is the Mueller dispersity equation', 'design rule for AMP charge', 'CDB chain transfer constant'). The corpus currently covers: RAFT polymerization mechanism + kinetics, antimicrobial peptide design, SNAPPs, polymer dispersity. Lexical (BM25) match — phrase queries with the right keywords.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Free-text query, e.g. 'RAFT chain transfer constant'"},
+                "k": {"type": "integer", "description": "Number of passages to return (1-10, default 3)"},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "rebuild_index",
+        "description": "Rebuild the RAG corpus index from disk. Use only if corpus files have been added or edited during the run. Returns chunk and term counts.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
     },
     {
         "name": "solve_three_reservoir_network",

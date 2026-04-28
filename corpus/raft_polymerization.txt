@@ -1,0 +1,54 @@
+RAFT Polymerization — Mechanism and Kinetics
+
+RAFT (Reversible Addition-Fragmentation chain Transfer) is a reversible-deactivation
+radical polymerization technique that gives polymers with controlled molecular weight,
+narrow dispersity, and well-defined chain-end functionality. It was first reported by
+the CSIRO group (Chiefari, Rizzardo, Thang, Moad et al.) in 1998.
+
+Mechanism
+The RAFT process introduces a thiocarbonylthio chain-transfer agent (CTA, also called
+RAFT agent) of the general structure Z-C(=S)-S-R, where Z is the activating group and
+R is a radical leaving group. Conventional radical initiation generates a propagating
+radical Pn, which adds reversibly to the C=S bond of the CTA. The resulting intermediate
+fragments to release a new radical (initially R, later Pm), which propagates a new chain.
+At any moment most chains are dormant (capped by the CTA), and only a tiny fraction
+carry the active radical, suppressing termination and giving living-like behaviour.
+
+Key rate constants
+- kp: propagation rate constant (L/mol/s). For styrene at 70 C, kp is approximately
+  480 L/mol/s. For methyl methacrylate (MMA) at 70 C, kp is approximately 830 L/mol/s.
+  IUPAC benchmarks (Beuermann and Buback, Prog Polym Sci 27 2002 191) give Arrhenius
+  parameters for many monomers.
+- kd: initiator decomposition rate constant (1/s). For AIBN at 70 C, kd is approximately
+  3.2e-5 1/s, corresponding to a half life of about 6 hours.
+- kt: termination rate constant (L/mol/s). Approximately 1e8 for most monomers, weakly
+  temperature dependent.
+- C_tr: chain transfer constant of the CTA, defined as k_tr / kp. Higher C_tr means
+  faster CTA consumption and narrower dispersity. CDB (cumyl dithiobenzoate) has
+  C_tr ~ 6000 for styrene; DDMAT and CPADB are typical CTAs for acrylates with
+  C_tr ~ 30 - 600.
+
+Pseudo-steady-state radical concentration
+Assuming radicals reach steady state and termination is bimolecular, the radical
+concentration is [P*] = sqrt(2 f kd [I] / kt), where f is the initiator efficiency
+(typically 0.5 to 0.7 for AIBN). This is constant if [I] does not vary much.
+
+First-order monomer consumption
+With constant [P*], monomer consumption is first order: x(t) = 1 - exp(-kp [P*] t)
+where x is the fractional conversion.
+
+Mn and dispersity in ideal RAFT
+For an ideal RAFT polymerization (full CTA consumption, no termination loss):
+  DP_n(t) = x(t) [M]_0 / [CTA]_0
+  Mn(t)  = DP_n(t) * MW_monomer + MW_CTA
+The dispersity is given approximately by the Mueller equation:
+  Dispersity ~ 1 + 1/DP_n + (1/C_tr) (2 - x) / x
+This expression is valid for low-to-moderate conversion (x < 0.7); at higher
+conversion termination becomes significant and dispersity broadens.
+
+Choosing a CTA
+The CTA Z and R groups must be matched to the monomer family:
+- Dithiobenzoates (e.g. CDB) work well with more activated monomers (MMA, styrene).
+- Trithiocarbonates (e.g. DDMAT, CPADB) work well with less activated monomers
+  (acrylates, acrylamides, vinyl acetate).
+A mismatched CTA gives slow initiation, high dispersity, or incomplete control.

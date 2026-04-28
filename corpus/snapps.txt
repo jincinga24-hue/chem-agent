@@ -1,0 +1,56 @@
+SNAPPs — Structurally Nanoengineered Antimicrobial Peptide Polymers
+
+SNAPPs are a class of star-shaped cationic peptide polymers developed by Greg Qiao's
+group at the University of Melbourne as a new approach to combat multidrug-resistant
+(MDR) bacteria. The platform was first reported in 2016 (Lam, Wong, Boyer, Qiao et al.,
+Nature Microbiology 1, 16162).
+
+Architecture
+A SNAPP is a hyperbranched star polymer with a polyamidoamine (PAMAM) or similar
+multi-arm core, from which short cationic peptide arms emanate. The arms are typically
+6 to 16 amino acids long, rich in lysine (K) and valine (V) or other hydrophobic
+residues, giving each arm a high local positive charge density and amphipathic
+character. Typical SNAPPs have 16 to 32 arms.
+
+Synthesis
+The peptide arms are grown from the multifunctional core by N-carboxyanhydride (NCA)
+ring-opening polymerisation, which proceeds in a controlled manner without harsh
+coupling reagents. The number of arms and arm length can be tuned by stoichiometry.
+
+Mechanism of action
+SNAPPs disrupt bacterial membranes via a multi-modal mechanism. The high local
+density of positive charge enables strong electrostatic binding to negatively charged
+bacterial outer leaflets (LPS in Gram-negative, teichoic acids in Gram-positive).
+The amphipathic arms then insert into and depolarise the inner membrane, causing rapid
+cell death. Because of their multi-modal action and the multiple arms required to drive
+this mechanism, SNAPPs do not readily select for resistance.
+
+Activity profile
+SNAPPs show low minimum inhibitory concentration (MIC) values (often 1 to 10 ug/mL)
+against Gram-negative pathogens including E. coli, P. aeruginosa, A. baumannii, and
+K. pneumoniae, including their multidrug-resistant strains. They show much lower
+activity against mammalian red blood cells, giving therapeutic indices typically
+greater than 50.
+
+Lipidated SNAPP-Stars (2025)
+A recent advance is the lipidated SNAPP-Star (Sun, Cheng, Lam, Qiao et al., ACS Applied
+Materials and Interfaces, 2025). Adding a single fatty-acid chain (C6, C12, or C18) to
+the core anchors the SNAPP to bacterial peptidoglycan, dramatically accelerating kill
+kinetics. The optimised C6-SNAPP kills MRSA in under 1 minute, compared to over 16
+hours for vancomycin, and selectively targets MRSA over commensal S. aureus in
+co-culture. Lipidation does not increase mammalian cell toxicity, giving an improved
+therapeutic index.
+
+Computational and MD studies
+Molecular dynamics simulations of SNAPPs interacting with bacterial and mammalian
+bilayers (Jayawardena, Hung, Qiao 2025; J. Phys. Chem. B 5c02067 and 5c06308) have
+been used to understand the molecular basis of selectivity. Lipidated SNAPPs show
+preferential insertion into bacterial-mimicking bilayers (PG-rich) versus mammalian
+RBC bilayers (PC-rich). The MD work complements the wet-lab synthesis pipeline.
+
+Future directions
+Computational design of SNAPP arm sequences using AMP descriptors (charge,
+hydrophobic moment, helix propensity) and machine-learning models is an emerging
+direction (Qiao et al., Prog. Polym. Sci. 2026, 102119). The combination of star
+polymer architecture, peptide chemistry, and computational design positions SNAPPs as
+a flexible platform against the antibiotic resistance crisis.

@@ -6,7 +6,7 @@ Autonomous chemistry/chemical-engineering research agent. Plans, reasons, and so
 
 **v0.2 benchmark:** 228/230 (99.1%), 22/22 numerical problems correct across 10 ChemE subdomains.
 
-**v0.3 (in progress):** added polymer chemistry (RAFT kinetics) and peptide / AMP descriptor tools — 29 benchmark problems across 17 categories, 76 unit tests.
+**v0.3 (in progress):** added polymer chemistry (RAFT kinetics), peptide / AMP descriptors, structured trace logging, and RAG over a polymer-chemistry corpus — 29 benchmark problems across 17 categories, **104 unit tests**, 96.9% on the v0.3 baseline run.
 
 ## Why
 
@@ -35,7 +35,9 @@ ChemAgent:
 - **Fluids module** — Colebrook/Swamee-Jain, three-reservoir networks, Crane TP-410 fittings
 - **Polymer module** — RAFT kinetics (Arrhenius rate constants for 6 monomers, 3 initiators, 4 RAFT agents) with Müller dispersity, inverse target-DP design
 - **Peptide / AMP module** — net charge (Henderson-Hasselbalch), Kyte-Doolittle hydrophobicity, Eisenberg hydrophobic moment μH, Chou-Fasman helix propensity — for SNAPP / antimicrobial peptide design
-- **Pytest** — 76 unit tests on tools
+- **Trace logging** — every agent run writes a JSONL trace (`traces/<run_id>/<problem_id>.jsonl`) with timestamps, tool calls, latencies, and final answers. Replayable and analysable.
+- **RAG (BM25)** — pure-Python BM25 over a polymer-chemistry corpus (`corpus/`). No ML dependencies. Currently covers RAFT mechanism + kinetics, AMP design, SNAPPs, polymer dispersity. Easily extended by dropping more `.txt` / `.md` files into the corpus.
+- **Pytest** — 104 unit tests on tools
 - **LLM-judge eval harness** — 29 problems across 17 ChemE subdomains
 
 ## Setup
@@ -78,15 +80,21 @@ src/
     fluids.py      pipe roughness, Reynolds, friction factors, three-reservoir solver
     polymer.py     RAFT polymerization kinetics + inverse target-DP design
     peptide.py     net charge, hydrophobic moment, helix propensity, AMP-likeness
+    knowledge.py   BM25 RAG over corpus/ — keyword-grounded retrieval
+  tracing.py     structured JSONL trace logger
+corpus/             plain-text knowledge corpus (RAFT, AMPs, SNAPPs, dispersity)
 evals/
   problems.json   29 benchmark problems + ground truth
   judge.py        LLM-judge scoring
-  run_eval.py     runs agent on all problems, reports score
+  run_eval.py     runs agent on all problems with per-problem traces
+traces/             JSONL traces, one file per problem per run
 tests/
   test_tools.py     unit tests for molecular/thermo/python_exec/literature
   test_fluids.py    unit tests for fluids module
   test_polymer.py   unit tests for RAFT kinetics
   test_peptide.py   unit tests for peptide / AMP descriptors
+  test_tracing.py   unit tests for trace logging
+  test_knowledge.py unit tests for RAG / BM25
 ```
 
 ## Benchmark: 29 problems across 17 ChemE subdomains
@@ -116,8 +124,9 @@ tests/
 - [x] v0.1 — single-step tool-use, 5 problems eval, `claude -p` backend
 - [x] v0.2 — 23 problems, 10 subdomains, scipy sandbox, arxiv tool, qualitative judge
 - [x] v0.3a — fluids (Colebrook, three-reservoir), polymer (RAFT kinetics), peptide / AMP descriptors
-- [ ] v0.3b — RAG over polymer chemistry textbooks (Odian) + Perry's Handbook
-- [ ] v0.4 — trace logging, LangGraph refactor for parallel tool use
+- [x] v0.3b — structured trace logging (JSONL per problem) + RAG over polymer-chemistry corpus (BM25)
+- [ ] v0.3c — extend corpus to full Odian/Moad chapters + Perry's Handbook excerpts; switch BM25 to embedding-based retrieval
+- [ ] v0.4 — LangGraph refactor for parallel tool use, polymer informatics (polyBERT / property prediction)
 - [ ] v0.5 — DWSIM integration for real process simulation
 - [ ] v0.6 — lab-in-the-loop: agent proposes + runs experiments
 

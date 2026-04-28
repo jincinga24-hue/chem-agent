@@ -4,4 +4,5 @@ __pycache__/
 *.pyc
 .pytest_cache/
 eval_results/
+traces/
 .DS_Store
