@@ -176,11 +176,59 @@
     "tolerance_pct": 5.0
   },
   {
+    "id": "torricelli-tank-three-holes",
+    "category": "fluid_mechanics",
+    "problem": "An open tank is filled to height h0 = 1.20 m and has three small holes on the side at heights h1 = h0/4, h2 = h0/2, h3 = 3h0/4. Liquid level is held constant. Using Torricelli's theorem for the exit velocity V_i = sqrt(2*g*(h0 - h_i)) and projectile motion for the time of fall t_i = sqrt(2*h_i/g), compute the horizontal distances L_i = V_i * t_i that each jet travels before hitting the ground (take g = 9.81 m/s^2). Report the largest horizontal distance L_max in metres to 3 significant figures.",
+    "ground_truth": "L_i = 2*sqrt(h_i*(h0 - h_i)). This is maximised at h_i = h0/2, giving L_max = h0. For h0 = 1.20 m, L_max = L_2 = 1.20 m. (L_1 = L_3 = 2*sqrt(0.25*0.75)*h0 = sqrt(3)/2 * h0 ~ 1.039 m.)",
+    "expected_value": 1.20,
+    "tolerance_pct": 2.0
+  },
+  {
+    "id": "three-reservoir-junction-pressure",
+    "category": "fluid_mechanics",
+    "problem": "Three tanks feed a common tee junction J at elevation z_J = 2.0 m via three pipes. J is a pipe tee (not a discharge into a reservoir) so no exit-loss coefficient applies at J and velocity head at J is neglected, consistent with standard water-distribution analysis. Working fluid is water at 20 C. Compute the absolute pressure at the junction in kPa.\n\nTank 1: P1 = 500 kPa (abs), z1+h1 (free-surface elevation) = 60.0 m.\nTank 2: P2 = 200 kPa (abs), z2+h2 = 25.0 m.\nTank 3: P3 = 101.325 kPa (atmospheric), z3+h3 = 7.0 m.\n\nPipe 1 (tank 1 to J): commercial steel Schedule 40 DN100 (inside diameter per ASME B36.10M-2018), length 100 m, one sharp entrance (K=0.5), two 90 deg standard elbows, one open gate valve.\nPipe 2 (tank 2 to J): HDPE PN16 DN90 (inside diameter per AS/NZS 4130:2018), length 150 m, sharp entrance, one 45 deg elbow, one open ball valve.\nPipe 3 (tank 3 to J): galvanized iron Schedule 40 DN50, length 80 m, sharp entrance, one 90 deg standard elbow, one open globe valve.\n\nUse cited literature values for pipe roughness (Moody 1944 / Crane TP-410) and fitting K (Crane TP-410). Solve the extended Bernoulli equation between each tank free surface and the junction together with continuity (sum of signed flows = 0) using the Colebrook-White friction factor. Report P_J in kPa.",
+    "ground_truth": "Independent reference: EPANET 2.2 (US EPA, Darcy-Weisbach + Swamee-Jain) gives P_J = 892.74 kPa (abs). Water at 20 C: rho = 998.2 kg/m^3, mu = 1.002e-3 Pa.s. Pipe IDs: P1 = 102.26 mm (ASME B36.10M-2018), P2 = 73.6 mm (AS/NZS 4130:2018), P3 = 52.50 mm. Roughness: commercial steel 0.046 mm, HDPE 0.007 mm, galvanized iron 0.15 mm (Moody 1944 / Crane TP-410). Sum K (no exit, since J is a tee): P1 = 0.5+2*0.75+0.15 = 2.15; P2 = 0.5+0.35+0.05 = 0.90; P3 = 0.5+0.75+10.0 = 11.25. Solving the 4-equation system (3 extended Bernoulli + continuity) with Colebrook friction factors yields the same P_J within 0.04% of EPANET. Flow directions: tank 1 feeds the junction (Q1 > 0, ~35.0 L/s), tanks 2 and 3 receive flow (Q2 ~ -23.3 L/s, Q3 ~ -11.6 L/s).",
+    "expected_value": 892.74,
+    "tolerance_pct": 2.0
+  },
+  {
     "id": "underwood-min-reflux",
     "category": "optimization",
     "problem": "A distillation column separates a ternary saturated liquid feed (q = 1) of composition: z_A = 0.3, z_B = 0.3, z_C = 0.4. Relative volatilities referenced to C: alpha_A = 4.0, alpha_B = 2.0, alpha_C = 1.0. Distillate composition is: x_DA = 0.90, x_DB = 0.08, x_DC = 0.02. Using the Underwood equations, solve for the root theta of the first Underwood equation between alpha_B = 2.0 and alpha_A = 4.0 (use scipy.optimize.brentq), then compute the minimum reflux ratio Rmin from the second Underwood equation. Report Rmin to 3 significant figures.\n\nUnderwood eq 1 (for q = 1): sum_i [alpha_i * z_i / (alpha_i - theta)] = 0\nUnderwood eq 2: Rmin + 1 = sum_i [alpha_i * x_Di / (alpha_i - theta)]",
     "ground_truth": "Solving Underwood eq 1 for theta in (2, 4) gives theta ~ 2.785. Then Rmin + 1 = 4*0.9/(4-2.785) + 2*0.08/(2-2.785) + 1*0.02/(1-2.785) = 2.963 - 0.204 - 0.0112 = 2.748. Rmin = 1.748 ~ 1.75.",
     "expected_value": 1.75,
     "tolerance_pct": 10.0
+  },
+  {
+    "id": "raft-mma-mn-prediction",
+    "category": "polymer",
+    "problem": "Use the raft_kinetics tool to predict the number-average molecular weight Mn (g/mol) of poly(methyl methacrylate) made by RAFT polymerization with the following recipe: monomer = MMA at [M]_0 = 5.0 mol/L, initiator = AIBN at [I]_0 = 0.005 mol/L, RAFT agent = CDB at [CTA]_0 = 0.05 mol/L, temperature = 70 C, reaction time = 4 hours. Report Mn at the end of the reaction in g/mol.",
+    "ground_truth": "raft_kinetics with these parameters returns conversion x ~ 0.444, DP_n ~ 44.4, Mn ~ 4718 g/mol, dispersity Đ ~ 1.02. Model uses pseudo-steady-state radicals with Arrhenius rate constants for MMA/AIBN/CDB at 70 C and the Müller dispersity equation. Acceptable answers: 4000–5500 g/mol.",
+    "expected_value": 4718,
+    "tolerance_pct": 15.0
+  },
+  {
+    "id": "raft-inverse-target-dp",
+    "category": "polymer",
+    "problem": "I want to synthesize polystyrene with a target degree of polymerization (DP) of 200 by RAFT polymerization using cumyl dithiobenzoate (CDB) as the chain transfer agent. My initial styrene concentration will be [M]_0 = 5.0 mol/L. Use the raft_target_dp tool. What [CTA]_0 in mol/L do I need (assuming full conversion, ideal RAFT)?",
+    "ground_truth": "For ideal RAFT at full conversion, DP_n = [M]_0 / [CTA]_0, so [CTA]_0 = 5.0 / 200 = 0.025 mol/L. The raft_target_dp tool returns this directly.",
+    "expected_value": 0.025,
+    "tolerance_pct": 1.0
+  },
+  {
+    "id": "peptide-melittin-charge",
+    "category": "peptide",
+    "problem": "Use the peptide_properties tool to compute the net charge of melittin (sequence: GIGAVLKVLTTGLPALISWIKRKRQQ) at physiological pH 7.4. Report the net charge as a number.",
+    "ground_truth": "Melittin contains 3 lysines (K), 2 arginines (R), no aspartate/glutamate, and no histidines. At pH 7.4 using Henderson-Hasselbalch with standard pKa values (K 10.5, R 12.4, N-term 9.0, C-term 2.0), the net charge is approximately +5.0 (literature reports +5 to +6). The peptide_properties tool returns 4.97 at pH 7.4.",
+    "expected_value": 4.97,
+    "tolerance_pct": 10.0
+  },
+  {
+    "id": "peptide-melittin-amphipathicity",
+    "category": "peptide",
+    "problem": "Use the peptide_properties tool to compute the alpha-helical hydrophobic moment uH of melittin (GIGAVLKVLTTGLPALISWIKRKRQQ), using the Kyte-Doolittle hydrophobicity scale and delta = 100 deg per residue. Report uH (the hydrophobic_moment_alpha field).",
+    "ground_truth": "Eisenberg's hydrophobic moment formula uH = (1/N) sqrt[(sum H_i sin(d i))^2 + (sum H_i cos(d i))^2] applied to melittin with the Kyte-Doolittle scale and delta = 100 deg gives uH ~ 1.23. (Note: literature values using the normalized consensus Eisenberg scale typically cite ~0.39 — the absolute number depends on the hydrophobicity scale used.) Melittin is the textbook amphipathic alpha-helical AMP.",
+    "expected_value": 1.229,
+    "tolerance_pct": 15.0
   }
 ]
